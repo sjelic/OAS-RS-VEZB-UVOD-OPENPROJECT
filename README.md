@@ -2,20 +2,36 @@
 
 ## Rešenje vežbe (Docker Compose + MailHog)
 
-U repozitorijumu je dodat `docker-compose.yaml` koji sadrži:
-- `openproject` servis,
-- `db` (PostgreSQL) servis,
-- `mailhog` servis,
-- volumene `pgdata` i `opdata` za perzistenciju.
+Dodat je parametarski `docker-compose.yaml` sa servisima:
+- `openproject`
+- `db` (PostgreSQL)
+- `mailhog`
 
-SMTP podešavanja za OpenProject su nameštena da koriste MailHog:
-- host: `mailhog`
-- port: `1025`
+Perzistencija:
+- `pgdata` za bazu
+- `opdata` za OpenProject podatke
 
-> Napomena: `SECRET_KEY_BASE` je obavezan za pokretanje OpenProject-a.
-> Za realno okruženje obavezno promeniti vrednost `super-secret-change-me` nasumičnim i bezbednim stringom.
+## 1) Podešavanje parametara (`.env`)
 
-## Pokretanje
+Kopiraj primer i prilagodi vrednosti:
+
+```bash
+cp .env.example .env
+```
+
+Najvažniji SMTP parametri (sada potpuno parametrizovani):
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_AUTHENTICATION`
+- `SMTP_USERNAME`
+- `SMTP_PASSWORD`
+- `SMTP_ENABLE_STARTTLS_AUTO`
+
+Podrazumevano (`.env.example`) je lokalni MailHog (`mailhog:1025`) bez autentikacije i bez STARTTLS.
+
+> Napomena: obavezno postavi bezbedan `OPENPROJECT_SECRET_KEY_BASE` pre realne upotrebe.
+
+## 2) Pokretanje
 
 ```bash
 docker compose up -d
@@ -27,22 +43,22 @@ Provera statusa:
 docker compose ps
 ```
 
-Pregled logova (korisno kod inicijalnog podizanja):
+Logovi:
 
 ```bash
 docker compose logs -f openproject
 ```
 
-## Pristup servisima
+## 3) Pristup servisima
 
-- OpenProject: http://localhost:8080
-- MailHog UI: http://localhost:8025
+- OpenProject: `http://localhost:8080` (ili port iz `OPENPROJECT_HTTP_PORT`)
+- MailHog UI: `http://localhost:8025` (ili port iz `MAILHOG_UI_PORT`)
 
-## Koraci iz zadatka
+## 4) Koraci iz zadatka
 
-1. Otvoriti OpenProject na `http://localhost:8080` i završiti inicijalnu konfiguraciju (admin nalog).
-2. Kreirati novi projekat.
-3. Dodati nekoliko zadataka (work packages).
-4. Otvoriti Board (Kanban/Scrum) i rasporediti zadatke po kolonama.
-5. Uraditi akciju koja šalje email (npr. poziv korisnika/notifikacija).
-6. Otvoriti MailHog UI na `http://localhost:8025` i proveriti da su poruke isporučene.
+1. Otvori OpenProject i završi inicijalnu konfiguraciju (admin nalog).
+2. Kreiraj novi projekat.
+3. Dodaj nekoliko zadataka (work packages).
+4. Organizuj zadatke kroz Kanban/Scrum board.
+5. Izazovi slanje email-a (notifikacija/invite).
+6. Proveri poruke u MailHog UI.

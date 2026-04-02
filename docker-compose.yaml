@@ -1,16 +1,16 @@
 services:
   db:
-    image: postgres:17
+    image: postgres:${POSTGRES_VERSION:-17}
     container_name: openproject-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: openproject
-      POSTGRES_USER: openproject
-      POSTGRES_PASSWORD: openproject
+      POSTGRES_DB: ${POSTGRES_DB:-openproject}
+      POSTGRES_USER: ${POSTGRES_USER:-openproject}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-openproject}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U openproject -d openproject"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-openproject} -d ${POSTGRES_DB:-openproject}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -20,11 +20,11 @@ services:
     container_name: openproject-mailhog
     restart: unless-stopped
     ports:
-      - "1025:1025"
-      - "8025:8025"
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"
+      - "${MAILHOG_UI_PORT:-8025}:8025"
 
   openproject:
-    image: openproject/openproject:17
+    image: openproject/openproject:${OPENPROJECT_VERSION:-17}
     container_name: openproject-app
     restart: unless-stopped
     depends_on:
@@ -33,18 +33,20 @@ services:
       mailhog:
         condition: service_started
     ports:
-      - "8080:80"
+      - "${OPENPROJECT_HTTP_PORT:-8080}:80"
     environment:
-      SECRET_KEY_BASE: super-secret-change-me
-      OPENPROJECT_HOST__NAME: localhost:8080
-      OPENPROJECT_HTTPS: "false"
-      DATABASE_URL: postgres://openproject:openproject@db:5432/openproject
+      SECRET_KEY_BASE: ${OPENPROJECT_SECRET_KEY_BASE:-super-secret-change-me}
+      OPENPROJECT_HOST__NAME: ${OPENPROJECT_HOST_NAME:-localhost:8080}
+      OPENPROJECT_HTTPS: ${OPENPROJECT_HTTPS:-false}
+      DATABASE_URL: postgres://${POSTGRES_USER:-openproject}:${POSTGRES_PASSWORD:-openproject}@db:5432/${POSTGRES_DB:-openproject}
       OPENPROJECT_EMAIL__DELIVERY__METHOD: smtp
-      OPENPROJECT_SMTP__ADDRESS: mailhog
-      OPENPROJECT_SMTP__PORT: 1025
-      OPENPROJECT_SMTP__DOMAIN: localhost
-      OPENPROJECT_SMTP__AUTHENTICATION: none
-      OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO: "false"
+      OPENPROJECT_SMTP__ADDRESS: ${SMTP_HOST:-mailhog}
+      OPENPROJECT_SMTP__PORT: ${SMTP_PORT:-1025}
+      OPENPROJECT_SMTP__DOMAIN: ${SMTP_DOMAIN:-localhost}
+      OPENPROJECT_SMTP__AUTHENTICATION: ${SMTP_AUTHENTICATION:-none}
+      OPENPROJECT_SMTP__USER__NAME: ${SMTP_USERNAME:-}
+      OPENPROJECT_SMTP__PASSWORD: ${SMTP_PASSWORD:-}
+      OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO: ${SMTP_ENABLE_STARTTLS_AUTO:-false}
     volumes:
       - opdata:/var/openproject/assets
 
