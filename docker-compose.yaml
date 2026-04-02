@@ -13,10 +13,18 @@ services:
       test: ["CMD-SHELL", "pg_isready -U openproject -d openproject"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: openproject-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
   openproject:
-    image: openproject/openproject:17-slim
+    image: openproject/openproject:17
     container_name: openproject-app
     restart: unless-stopped
     depends_on:
@@ -27,8 +35,9 @@ services:
     ports:
       - "8080:80"
     environment:
-      OPENPROJECT_HTTPS: "false"
+      SECRET_KEY_BASE: super-secret-change-me
       OPENPROJECT_HOST__NAME: localhost:8080
+      OPENPROJECT_HTTPS: "false"
       DATABASE_URL: postgres://openproject:openproject@db:5432/openproject
       OPENPROJECT_EMAIL__DELIVERY__METHOD: smtp
       OPENPROJECT_SMTP__ADDRESS: mailhog
@@ -38,14 +47,6 @@ services:
       OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO: "false"
     volumes:
       - opdata:/var/openproject/assets
-
-  mailhog:
-    image: mailhog/mailhog:v1.0.1
-    container_name: openproject-mailhog
-    restart: unless-stopped
-    ports:
-      - "1025:1025"
-      - "8025:8025"
 
 volumes:
   pgdata:
