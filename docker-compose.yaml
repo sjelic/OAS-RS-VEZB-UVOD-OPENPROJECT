@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:16
+    container_name: openproject-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: openproject
+      POSTGRES_USER: openproject
+      POSTGRES_PASSWORD: openproject
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openproject -d openproject"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  openproject:
+    image: openproject/openproject:17-slim
+    container_name: openproject-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    ports:
+      - "8080:80"
+    environment:
+      OPENPROJECT_HTTPS: "false"
+      OPENPROJECT_HOST__NAME: localhost:8080
+      DATABASE_URL: postgres://openproject:openproject@db:5432/openproject
+      OPENPROJECT_EMAIL__DELIVERY__METHOD: smtp
+      OPENPROJECT_SMTP__ADDRESS: mailhog
+      OPENPROJECT_SMTP__PORT: 1025
+      OPENPROJECT_SMTP__DOMAIN: localhost
+      OPENPROJECT_SMTP__AUTHENTICATION: none
+      OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO: "false"
+    volumes:
+      - opdata:/var/openproject/assets
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: openproject-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  pgdata:
+  opdata:
