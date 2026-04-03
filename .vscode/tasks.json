@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Docker Compose: Up",
+      "type": "shell",
+      "command": "docker compose --env-file .env up -d",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker Compose: Down",
+      "type": "shell",
+      "command": "docker compose --env-file .env down",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker Compose: Logs (OpenProject)",
+      "type": "shell",
+      "command": "docker compose --env-file .env logs -f openproject",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

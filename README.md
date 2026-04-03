@@ -62,3 +62,23 @@ docker compose logs -f openproject
 4. Organizuj zadatke kroz Kanban/Scrum board.
 5. Izazovi slanje email-a (notifikacija/invite).
 6. Proveri poruke u MailHog UI.
+
+
+## VS Code (Windows) podrška za `.env`
+
+Dodate su VS Code task komande u `.vscode/tasks.json` koje **uvek** pokreću Compose sa:
+
+```bash
+docker compose --env-file .env ...
+```
+
+Time se obezbeđuje da se promenljive iz `.env` učitaju i kada pokrećeš komande iz VS Code okruženja na Windows-u.
+
+Pokretanje iz VS Code:
+1. `Terminal` -> `Run Task...`
+2. Izaberi `Docker Compose: Up`
+
+Dostupni task-ovi:
+- `Docker Compose: Up`
+- `Docker Compose: Down`
+- `Docker Compose: Logs (OpenProject)`
